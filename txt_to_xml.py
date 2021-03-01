@@ -22,6 +22,6 @@ for name_list in glob.glob(os.path.join(ORIGINAL_ANNOTATION_PATH, 'all*.txt')):
 
     # Save annotations as XML
     for file_name, file_annotation in zip(f_name_list, f_annotation_list):
-        with open(os.path.join(PROCESSED_ANNOTATION_PATH, file_name.rstrip() + '.txt'), 'w') as f:
+        with open(os.path.join(PROCESSED_ANNOTATION_PATH, file_name.rstrip() + '.xml'), 'w') as f:
             soup = BeautifulSoup(file_annotation.replace('tdy', 'tdy/').replace('tdn', 'tdn/'), 'xml')
             f.write(soup.prettify())
