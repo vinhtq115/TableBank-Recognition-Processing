@@ -1,10 +1,13 @@
 import os
-import multiprocessing
+from tqdm.contrib.concurrent import process_map
 import cv2
 import numpy as np
-import time
 from utils import *
 from lxml import etree
+
+# PATH_TO_IMAGE_FOLDER = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\images'
+# PATH_TO_ORIGINAL_ANNOTATIONS = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\original_annotations'
+# PATH_TO_DESTINATION_ANNOTATIONS = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\annotations'
 
 PATH_TO_IMAGE_FOLDER = r'E:\TableBank-Recognition\Recognition\images'
 PATH_TO_ORIGINAL_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations_original'
@@ -16,25 +19,47 @@ def trim_bbox(img, bbox):
     left = bbox[1]
     bottom = bbox[2]
     right = bbox[3]
-    if len(np.unique(img[top : bottom + 1, left : right + 1])) == 1:
+    if len(np.unique(img[top: bottom + 1, left: right + 1])) == 1:
         return None  # Empty cells. No need to trim. Just return None
+    # Clear any undetected white border lines
     while top < bottom:
-        if len(np.unique(img[top, left: right + 1])) == 1:
+        if len(np.unique(img[top, left: right + 1])) == 1 and np.unique(img[top, left: right + 1])[0] == 255:
             top += 1
         else:
             break
     while bottom > top:
-        if len(np.unique(img[bottom, left: right + 1])) == 1:
+        if len(np.unique(img[bottom, left: right + 1])) == 1 and np.unique(img[bottom, left: right + 1])[0] == 255:
             bottom -= 1
         else:
             break
     while left < right:
-        if len(np.unique(img[top : bottom + 1, left])) == 1:
+        if len(np.unique(img[top: bottom + 1, left])) == 1 and np.unique(img[top: bottom + 1, left])[0] == 255:
             left += 1
         else:
             break
     while right > left:
-        if len(np.unique(img[top : bottom + 1, right])) == 1:
+        if len(np.unique(img[top: bottom + 1, right])) == 1 and np.unique(img[top: bottom + 1, right])[0] == 255:
+            right -= 1
+        else:
+            break
+    # Trim bbox
+    while top < bottom:
+        if len(np.unique(img[top, left: right + 1])) == 1 and np.unique(img[top, left: right + 1])[0] == 0:
+            top += 1
+        else:
+            break
+    while bottom > top:
+        if len(np.unique(img[bottom, left: right + 1])) == 1 and np.unique(img[bottom, left: right + 1])[0] == 0:
+            bottom -= 1
+        else:
+            break
+    while left < right:
+        if len(np.unique(img[top: bottom + 1, left])) == 1 and np.unique(img[top: bottom + 1, left])[0] == 0:
+            left += 1
+        else:
+            break
+    while right > left:
+        if len(np.unique(img[top: bottom + 1, right])) == 1 and np.unique(img[top: bottom + 1, right])[0] == 0:
             right -= 1
         else:
             break
@@ -65,7 +90,8 @@ def flow3(file):
 
     # Read and threshold image
     img = cv2.imread(image_path, 0)  # Read image as grayscale
-    _, binary = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    # _, binary = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    _, binary = cv2.threshold(img, 192, 255, cv2.THRESH_BINARY)
 
     # Invert the image
     inverted_bin_img = 255 - binary
@@ -116,7 +142,8 @@ def flow3(file):
         if row_idx >= len(horizontal_lines) - 1:
             break
 
-    rows_coordinates = [row_coordinates for row_coordinates in rows_coordinates if row_coordinates[1] - row_coordinates[0] > 4]
+    rows_coordinates = [row_coordinates for row_coordinates in rows_coordinates if
+                        row_coordinates[1] - row_coordinates[0] > 4]
 
     cols_coordinates = []
     cols_horizontal_projection = [False] * len(vertical_lines[0])  # False means black, True means white
@@ -142,7 +169,8 @@ def flow3(file):
         if col_idx >= len(vertical_lines[0]) - 1:
             break
 
-    cols_coordinates = [col_coordinates for col_coordinates in cols_coordinates if col_coordinates[1] - col_coordinates[0] > 4]
+    cols_coordinates = [col_coordinates for col_coordinates in cols_coordinates if
+                        col_coordinates[1] - col_coordinates[0] > 4]
 
     cells = []
     for row_idx, row in enumerate(rows_coordinates):
@@ -224,33 +252,35 @@ def flow3(file):
                 bndbox = etree.SubElement(object, 'bndbox')
                 # xmin
                 _xmin = etree.SubElement(bndbox, 'xmin')
-                _xmin.text = str(cell[0])
+                _xmin.text = str(cell[1])
 
                 # ymin
                 _ymin = etree.SubElement(bndbox, 'ymin')
-                _ymin.text = str(cell[1])
+                _ymin.text = str(cell[0])
 
                 # xmax
                 _xmax = etree.SubElement(bndbox, 'xmax')
-                _xmax.text = str(cell[2])
+                _xmax.text = str(cell[3])
 
                 # ymax
                 _ymax = etree.SubElement(bndbox, 'ymax')
-                _ymax.text = str(cell[3])
+                _ymax.text = str(cell[2])
         et = etree.ElementTree(root)
         et.write(destination_annotation_xml, pretty_print=True)
 
 
 if __name__ == '__main__':
-    a_pool = multiprocessing.Pool()
-    total = 0
-    for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
-        start = time.time()
-        a_pool.map(flow3, files)
-        end = time.time()
-        total = end - start
-    print('Time taken: ' + str(total) + ' (s)')
+    # a_pool = multiprocessing.Pool()
+    # total = 0
+    # for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
+    #     start = time.time()
+    #     a_pool.map(flow3, files)
+    #     end = time.time()
+    #     total = end - start
+    # print('Time taken: ' + str(total) + ' (s)')
 
+    for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
+        process_map(flow3, files, max_workers=12, chunksize=10)
     # for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
     #     for file in tqdm(files):
     #         try:

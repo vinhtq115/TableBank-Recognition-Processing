@@ -1,5 +1,4 @@
-import multiprocessing
-import time
+from tqdm.contrib.concurrent import process_map
 import os
 import cv2
 import numpy as np
@@ -8,7 +7,7 @@ from lxml import etree
 
 PATH_TO_IMAGE_FOLDER = r'E:\TableBank-Recognition\Recognition\images'
 PATH_TO_ORIGINAL_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations_original'
-PATH_TO_DESTINATION_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations'
+PATH_TO_DESTINATION_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\flow1'
 
 
 def flow1(file):
@@ -244,12 +243,5 @@ def flow1(file):
 
 
 if __name__ == '__main__':
-    a_pool = multiprocessing.Pool()
-    total = 0
     for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
-        start = time.time()
-        a_pool.map(flow1, files)
-        end = time.time()
-        total = end - start
-
-    print('Time taken: ' + str(total) + ' (s)')
+        process_map(flow1, files, max_workers=12, chunksize=10)
