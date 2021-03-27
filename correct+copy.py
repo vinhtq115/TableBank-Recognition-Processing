@@ -1,8 +1,10 @@
 import os
 import shutil
+from utils import get_file_name
 
-for root, dirs, files in os.walk(r'E:\TableBank-Recognition\Recognition\annotations'):
-    for file in files:
-        name = file[:-4]
-        shutil.copy(os.path.join(r'E:\TableBank-Recognition\Recognition\images', name + '.png'),
-                    os.path.join(r'E:\TableBank-Recognition\Recognition\images_correct', name + '.png'))
+
+for root_ann, _, files_ann in os.walk(r'E:\TableBank-Recognition\Recognition\final\annotations'):
+    finised_files_ann = [get_file_name(x) for x in files_ann]
+    for file in finised_files_ann:
+        shutil.copy(os.path.join(r'E:\TableBank-Recognition\Recognition\images', file + '.png'),
+                    os.path.join(r'E:\TableBank-Recognition\Recognition\final\images', file + '.png'))

@@ -76,8 +76,8 @@ def flow2(file):
                 height1 = bbox1[3] - bbox1[1]
                 height2 = bbox2[3] - bbox2[1]
                 height = min(height1, height2)
-                if not ((bbox2[3] < bbox1[1] and bbox1[1] - bbox2[3] <= height // 2) or (
-                        bbox1[3] < bbox2[1] and bbox2[1] - bbox1[3] <= height // 2)):
+                if not ((bbox2[3] < bbox1[1] and bbox1[1] - bbox2[3] <= height // 3) or (
+                        bbox1[3] < bbox2[1] and bbox2[1] - bbox1[3] <= height // 3)):
                     continue  # Make sure their vertical distance is not too far
                 if bbox2[2] < bbox1[0] or bbox1[2] < bbox2[0]:
                     continue  # Skip those that are also not horizontally aligned. Maybe fixed later?
@@ -110,8 +110,8 @@ def flow2(file):
                 height1 = bbox1[3] - bbox1[1]
                 height2 = bbox2[3] - bbox2[1]
                 height = min(height1, height2)
-                if not ((bbox2[2] < bbox1[0] and bbox1[0] - bbox2[2] <= height // 2) or (
-                        bbox1[2] < bbox2[0] and bbox2[0] - bbox1[2] <= height // 2)):
+                if not ((bbox2[2] < bbox1[0] and bbox1[0] - bbox2[2] <= height // 3) or (
+                        bbox1[2] < bbox2[0] and bbox2[0] - bbox1[2] <= height // 3)):
                     continue  # Make sure their horizontal distance is not too far
                 img_segment_1 = img[bbox1[1]: bbox1[3], bbox1[0]: bbox1[2]]
                 img_segment_2 = img[bbox2[1]: bbox2[3], bbox2[0]: bbox2[2]]
