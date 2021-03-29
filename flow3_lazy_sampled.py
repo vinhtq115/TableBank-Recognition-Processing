@@ -5,13 +5,10 @@ import numpy as np
 from utils import *
 from lxml import etree
 
-# PATH_TO_IMAGE_FOLDER = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\images'
-# PATH_TO_ORIGINAL_ANNOTATIONS = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\original_annotations'
-# PATH_TO_DESTINATION_ANNOTATIONS = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\annotations'
-
-PATH_TO_IMAGE_FOLDER = r'E:\TableBank-Recognition\Recognition\images'
-PATH_TO_ORIGINAL_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations_original'
-PATH_TO_DESTINATION_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\flow3'
+PATH_TO_IMAGE_FOLDER = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\images'
+PATH_TO_ORIGINAL_ANNOTATIONS = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\original_annotations'
+PATH_TO_DESTINATION_ANNOTATIONS = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\annotations'
+PATH_TO_SAVE_IMAGE_FOLDER = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\images_save'
 
 
 def trim_bbox(img, bbox):
@@ -70,7 +67,7 @@ def flow3(file):
     file = get_file_name(file)
     # Setup paths
     image_path = os.path.join(PATH_TO_IMAGE_FOLDER, file + '.png')
-    original_annotation_xml = os.path.join(PATH_TO_ORIGINAL_ANNOTATIONS, file + '.txt')
+    original_annotation_xml = os.path.join(PATH_TO_ORIGINAL_ANNOTATIONS, file + '.xml')
     destination_annotation_xml = os.path.join(PATH_TO_DESTINATION_ANNOTATIONS, file + '.xml')
 
     xml = open(original_annotation_xml).read()
@@ -197,7 +194,7 @@ def flow3(file):
             for cell in rows_ann[row]:
                 if cell == 'tdy':
                     visible_col_count += 1
-            if not (visible_col_count == len(new_cells[row]) or len(new_cells[row]) == len(rows_ann[row])):
+            if visible_col_count != len(new_cells[row]):
                 matched = False
                 break
     else:
@@ -267,25 +264,14 @@ def flow3(file):
                 _ymax.text = str(cell[2])
         et = etree.ElementTree(root)
         et.write(destination_annotation_xml, pretty_print=True)
+    img_save = cv2.imread(image_path)
+    color = (0, 0, 255) if not matched else (0, 255, 0)
+    for row in new_cells:
+        for cell in row:
+            cv2.rectangle(img_save, (cell[1], cell[0]), (cell[3], cell[2]), color, 1)
+    cv2.imwrite(os.path.join(PATH_TO_SAVE_IMAGE_FOLDER, file + '.png'), img_save)
 
 
 if __name__ == '__main__':
-    # a_pool = multiprocessing.Pool()
-    # total = 0
-    # for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
-    #     start = time.time()
-    #     a_pool.map(flow3, files)
-    #     end = time.time()
-    #     total = end - start
-    # print('Time taken: ' + str(total) + ' (s)')
-
     for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
         process_map(flow3, files, max_workers=12, chunksize=10)
-    # for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
-    #     for file in tqdm(files):
-    #         try:
-    #             flow3(get_file_name(file))
-    #         except:
-    #             print(get_file_name(file))
-    # print('Advanced files: ' + str(advance_counter))
-    # print('Correct files: ' + str(correct_counter))
