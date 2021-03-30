@@ -8,11 +8,11 @@ PATH_TO_IMAGE_FOLDER = r'E:\TableBank-Recognition\Recognition\images'
 # PATH_TO_ORIGINAL_ANNOTATIONS = r'C:\Users\starc\PycharmProjects\TableBank-Recognition-Processing\original_annotations'
 
 
-def check_template(binary, template, threshold=0.9, method=cv2.TM_CCOEFF_NORMED):
+def check_template(binary, template, threshold=0.85, method=cv2.TM_CCOEFF_NORMED):
     if binary.shape[0] < template.shape[0] or binary.shape[1] < template.shape[1]:
         return 0, binary
     res = cv2.matchTemplate(binary, template, method)
-    temp_image = binary.copy()
+    #temp_image = binary.copy()
     template_height, template_width = template.shape[:2]
 
     count_match = 0
@@ -27,27 +27,33 @@ def check_template(binary, template, threshold=0.9, method=cv2.TM_CCOEFF_NORMED)
         if max_val > threshold:
             count_match += 1
             start_row = max_loc[1] - template_height // 2 if max_loc[1] - template_height // 2 >= 0 else 0
-            end_row = max_loc[1] + template_height // 2 + 1 if max_loc[1] + template_height // 2 + 1 <= res.shape[
-                0] else res.shape[0]
+            end_row = max_loc[1] + template_height // 2 + 1 if max_loc[1] + template_height // 2 + 1 <= res.shape[0] else res.shape[0]
             start_col = max_loc[0] - template_width // 2 if max_loc[0] - template_width // 2 >= 0 else 0
-            end_col = max_loc[0] + template_width // 2 + 1 if max_loc[0] + template_width // 2 + 1 <= res.shape[1] else \
-            res.shape[0]
+            end_col = max_loc[0] + template_width // 2 + 1 if max_loc[0] + template_width // 2 + 1 <= res.shape[1] else res.shape[0]
             res[start_row: end_row, start_col: end_col] = 0
-            temp_image = cv2.rectangle(temp_image, (max_loc[0], max_loc[1]),
-                                       (max_loc[0] + template_width + 1, max_loc[1] + template_height + 1), 0)
+            #temp_image = cv2.rectangle(temp_image, (max_loc[0], max_loc[1]),
+            #                           (max_loc[0] + template_width + 1, max_loc[1] + template_height + 1), 0)
 
-    return count_match, temp_image
+    return count_match, None
 
 
 template = cv2.imread('missing_font_template.png', 0)
+template_tl = cv2.imread('missing_font_template_tl.png', 0)
+template_tr = cv2.imread('missing_font_template_tr.png', 0)
+template_bl = cv2.imread('missing_font_template_bl.png', 0)
+template_br = cv2.imread('missing_font_template_br.png', 0)
 
 
 def det(file):
     image_path = os.path.join(PATH_TO_IMAGE_FOLDER, file)
     img = cv2.imread(image_path, 0)  # Read image as grayscale
     _, binary = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
-    count_match, temp_image = check_template(binary, template)
-    if count_match >= 2:
+    count_match, _ = check_template(binary, template)
+    count_match1, _ = check_template(binary, template)
+    count_match2, _ = check_template(binary, template)
+    count_match3, _ = check_template(binary, template)
+    count_match4, _ = check_template(binary, template)
+    if count_match + count_match1 + count_match2 + count_match3 + count_match4 >= 10:
         return [file, True]
     else:
         return [file, False]
@@ -56,7 +62,7 @@ def det(file):
 if __name__ == '__main__':
     res = []
     for root, _, files in os.walk(PATH_TO_IMAGE_FOLDER):
-        res = process_map(det, files, max_workers=12, chunksize=10)
+        res = process_map(det, files, max_workers=12, chunksize=15)
         # for file in files:
         #     image_path = os.path.join(PATH_TO_IMAGE_FOLDER, file)
         #     img = cv2.imread(image_path, 0)  # Read image as grayscale
