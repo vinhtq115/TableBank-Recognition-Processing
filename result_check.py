@@ -1,6 +1,7 @@
 import cv2
 import os
 from lxml import etree
+from shutil import copyfile
 from utils import get_file_name
 
 PATH_TO_ANNOTATION_FOLDER = r'E:\TableBank-Recognition\final_recognition_data\annotations'
@@ -80,6 +81,7 @@ for i in range(len(ann_files)):
         choice = cv2.waitKey()
         if choice == 32:  # 32 = Space => Correct
             correct += 1
+            copyfile(ann_file, os.path.join(PATH_TO_ANNOTATION_FOLDER, ann_files[i]))
             continue
 
     # Try flow 2_1's annotation
@@ -90,6 +92,7 @@ for i in range(len(ann_files)):
         choice = cv2.waitKey()
         if choice == 32:  # 32 = Space => Correct
             correct += 1
+            copyfile(ann_file, os.path.join(PATH_TO_ANNOTATION_FOLDER, ann_files[i]))
             continue
 
     # Try flow 2_2's annotation
@@ -100,6 +103,7 @@ for i in range(len(ann_files)):
         choice = cv2.waitKey()
         if choice == 32:  # 32 = Space => Correct
             correct += 1
+            copyfile(ann_file, os.path.join(PATH_TO_ANNOTATION_FOLDER, ann_files[i]))
             continue
 
     # Try flow 3's annotation
@@ -110,6 +114,7 @@ for i in range(len(ann_files)):
         choice = cv2.waitKey()
         if choice == 32:  # 32 = Space => Correct
             correct += 1
+            copyfile(ann_file, os.path.join(PATH_TO_ANNOTATION_FOLDER, ann_files[i]))
             continue
 
     # Try flow 4's annotation
@@ -120,7 +125,8 @@ for i in range(len(ann_files)):
         choice = cv2.waitKey()
         if choice == 32:  # 32 = Space => Correct
             correct += 1
+            copyfile(ann_file, os.path.join(PATH_TO_ANNOTATION_FOLDER, ann_files[i]))
             continue
 
-    with open('wrong_files.txt', 'a') as f:
+    with open(r'E:\TableBank-Recognition\final_recognition_data\wrong_files.txt', 'a') as f:
         f.write(get_file_name(img_files[i]) + '\n')
