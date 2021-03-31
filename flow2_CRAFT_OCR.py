@@ -2,18 +2,15 @@ import os
 import cv2
 import craft_wrapper
 import numpy as np
-import time
 from tqdm import tqdm
 from utils import *
 from lxml import etree
 
-TXT_FLOW1 = r'E:\TableBank-Recognition\Recognition\flow1.txt'
+TXT_FLOW2 = r'E:\TableBank-Recognition\Recognition\flow2_1.txt'
 PATH_TO_IMAGE_FOLDER = r'E:\TableBank-Recognition\Recognition\images'
 PATH_TO_ORIGINAL_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations_original'
-PATH_TO_DESTINATION_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations'
+PATH_TO_DESTINATION_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\flows\flow2_1'
 CRAFT = None
-
-file_list = open(r'E:\TableBank-Recognition\Recognition\flow2_ocr.txt', 'w')
 
 
 def check_horizontal_line(img_segment_mid, background_pixel_value):
@@ -270,22 +267,15 @@ def flow2(file):
 
         et = etree.ElementTree(root)
         et.write(destination_annotation_xml, pretty_print=True)
-        file_list.write(file + '\n')
     else:
         return
 
 
 if __name__ == '__main__':
-    with open(TXT_FLOW1) as f:
-        finised_files = f.readlines()
-        finised_files = [x.strip() for x in finised_files]
+    with open(TXT_FLOW2) as f:
+        file_list = f.readlines()
+        file_list = [x.strip() for x in file_list]
 
-        remaining_files = []
-        for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
-            remaining_files = [get_file_name(x) for x in files if get_file_name(x) not in finised_files]
-            # Initialize CRAFT
-            start = time.time()
-            CRAFT = craft_wrapper.CRAFT_pytorch()
-            for file in tqdm(remaining_files):
-                flow2(file)
-            file_list.close()
+        CRAFT = craft_wrapper.CRAFT_pytorch()
+        for file in tqdm(file_list):
+            flow2(file)

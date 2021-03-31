@@ -5,7 +5,11 @@ for root, dirs, files in os.walk(r'E:\TableBank-Recognition\Recognition\flows\fl
     for file in files:
         detected_files.add(file)
 
-for root, dirs, files in os.walk(r'E:\TableBank-Recognition\Recognition\flows\flow2'):
+for root, dirs, files in os.walk(r'E:\TableBank-Recognition\Recognition\flows\flow2_1'):
+    for file in files:
+        detected_files.add(file)
+
+for root, dirs, files in os.walk(r'E:\TableBank-Recognition\Recognition\flows\flow2_2'):
     for file in files:
         detected_files.add(file)
 

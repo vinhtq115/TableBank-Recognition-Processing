@@ -8,8 +8,12 @@ PATH_TO_ANNOTATION_FOLDER = r'E:\TableBank-Recognition\final_recognition_data\an
 PATH_TO_IMAGE_FOLDER = r'E:\TableBank-Recognition\final_recognition_data\images'
 
 # Check if both folders have matching files
-_, _, ann_files = os.walk(PATH_TO_ANNOTATION_FOLDER)
-_, _, img_files = os.walk(PATH_TO_IMAGE_FOLDER)
+ann_files = []
+for _, _, files in os.walk(PATH_TO_ANNOTATION_FOLDER):
+    ann_files = files
+img_files = []
+for _, _, files in os.walk(PATH_TO_IMAGE_FOLDER):
+    img_files = files
 
 assert len(ann_files) == len(img_files)
 ann_files_no_ext = [get_file_name(ann_file) for ann_file in ann_files]

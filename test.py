@@ -1,8 +1,6 @@
-import cv2
+import os
 
-arr = cv2.imread('missing_font_template.png')
+PATH_TO_ANNOTATION_FOLDER = r'E:\TableBank-Recognition\final_recognition_data\annotations'
 
-while True:
-    cv2.imshow('fig', arr)
-    a = cv2.waitKey()
-    print(a)
+a = os.walk(PATH_TO_ANNOTATION_FOLDER)
+print(a)
