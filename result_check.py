@@ -112,7 +112,7 @@ for i in range(len(ann_files)):
             correct += 1
             continue
 
-    # Try flow 1's annotation
+    # Try flow 4's annotation
     if os.path.isfile(os.path.join(PATH_TO_ANNOTATION_FOLDER_FLOW_4, ann_files[i])):
         ann_file = os.path.join(PATH_TO_ANNOTATION_FOLDER_FLOW_4, ann_files[i])
         img_drawn = draw_bbox(img_file, ann_file)
