@@ -2,19 +2,15 @@ import os
 import cv2
 import craft_wrapper
 import numpy as np
-import time
 from tqdm import tqdm
 from utils import *
 from lxml import etree
 
-TXT_FLOW1 = r'E:\TableBank-Recognition\Recognition\flow1.txt'
+TXT_FLOW2 = r'E:\TableBank-Recognition\Recognition\flow2_2.txt'
 PATH_TO_IMAGE_FOLDER = r'E:\TableBank-Recognition\Recognition\images'
 PATH_TO_ORIGINAL_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations_original'
-PATH_TO_DESTINATION_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\annotations'
+PATH_TO_DESTINATION_ANNOTATIONS = r'E:\TableBank-Recognition\Recognition\flows\flow2_2'
 CRAFT = None
-
-file_list = open(r'E:\TableBank-Recognition\Recognition\flow2_ocr_2.txt', 'w')
-counter = 0
 
 
 def check_horizontal_line(img_segment_mid, background_pixel_value):
@@ -42,7 +38,6 @@ def check_horizontal_line(img_segment_mid, background_pixel_value):
 
 
 def flow2(file):
-    global counter
     # Setup paths
     image_path = os.path.join(PATH_TO_IMAGE_FOLDER, file + '.png')
     original_annotation_xml = os.path.join(PATH_TO_ORIGINAL_ANNOTATIONS, file + '.txt')
@@ -110,8 +105,8 @@ def flow2(file):
                 height1 = bbox1[3] - bbox1[1]
                 height2 = bbox2[3] - bbox2[1]
                 height = min(height1, height2)
-                if not ((bbox2[2] < bbox1[0] and bbox1[0] - bbox2[2] <= height // 3) or (
-                        bbox1[2] < bbox2[0] and bbox2[0] - bbox1[2] <= height // 3)):
+                if not ((bbox2[2] < bbox1[0] and bbox1[0] - bbox2[2] <= height // 2) or (
+                        bbox1[2] < bbox2[0] and bbox2[0] - bbox1[2] <= height // 2)):
                     continue  # Make sure their horizontal distance is not too far
                 img_segment_1 = img[bbox1[1]: bbox1[3], bbox1[0]: bbox1[2]]
                 img_segment_2 = img[bbox2[1]: bbox2[3], bbox2[0]: bbox2[2]]
@@ -272,24 +267,15 @@ def flow2(file):
 
         et = etree.ElementTree(root)
         et.write(destination_annotation_xml, pretty_print=True)
-        file_list.write(file + '\n')
-        counter += 1
-        print(counter)
     else:
         return
 
 
 if __name__ == '__main__':
-    with open(TXT_FLOW1) as f:
-        finised_files = f.readlines()
-        finised_files = [x.strip() for x in finised_files]
+    with open(TXT_FLOW2) as f:
+        file_list = f.readlines()
+        file_list = [x.strip() for x in file_list]
 
-        remaining_files = []
-        for root, dirs, files in os.walk(PATH_TO_IMAGE_FOLDER):
-            remaining_files = [get_file_name(x) for x in files if get_file_name(x) not in finised_files]
-            # Initialize CRAFT
-            start = time.time()
-            CRAFT = craft_wrapper.CRAFT_pytorch()
-            for file in tqdm(remaining_files):
-                flow2(file)
-            file_list.close()
+        CRAFT = craft_wrapper.CRAFT_pytorch()
+        for file in tqdm(file_list):
+            flow2(file)
