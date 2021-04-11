@@ -1,6 +1,6 @@
 import os
+import cv2
 
-PATH_TO_ANNOTATION_FOLDER = r'E:\TableBank-Recognition\final_recognition_data\annotations'
-
-a = os.walk(PATH_TO_ANNOTATION_FOLDER)
-print(a)
+cv2.namedWindow('abc')
+while True:
+    print(cv2.waitKey())

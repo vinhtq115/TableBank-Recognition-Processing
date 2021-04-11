@@ -86,7 +86,6 @@ def flow4(file):
 
     # Read and threshold image
     img = cv2.imread(image_path, 0)  # Read image as grayscale
-    # _, binary = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     _, binary = cv2.threshold(img, 192, 255, cv2.THRESH_BINARY)
 
     # Invert the image
